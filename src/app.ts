@@ -1,10 +1,8 @@
 import express from "express"
-import dotEnv from "dotenv"
 import helmet from "helmet"
-
+import environmentVariables from "./environment-variables.js";
 
 const app = express()
-dotEnv.config({path: import.meta.dirname + "/../.env"})
 
 app.get("/", (req, res) => {
     res.send("<h1>Let's do this!</h1")
@@ -19,5 +17,5 @@ app.set("trust proxy", 1)
 app.use(helmet())
 
 // listen for requests
-const PORT = process.env.SERVER_LISTEN_PORT || 3000
+const PORT = environmentVariables.server.listenPort || 3000
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
