@@ -1,4 +1,4 @@
-import environmentVariables from "../environment-variables"
+import environmentVariables from "../environment-variables.js"
 import bcrypt from "bcrypt"
 import mysql, {RowDataPacket} from "mysql2/promise"
 
