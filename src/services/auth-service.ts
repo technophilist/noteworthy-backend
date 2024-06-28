@@ -58,15 +58,16 @@ const unregisterUser = async (email: string): Promise<void> => {
  * Authenticate a user with the provided email and password
  * @param {string} email - The email of the user
  * @param {string} password - The password of the user
- * @returns {Promise<boolean>} A promise that resolves to true if authentication is successful, otherwise false
+ * @returns {Promise<boolean>} A promise that resolves to a boolean value (true if authentication is successful)
+ * or null if no user with the specified email exists.
  */
 
-const authenticateUser = async (email: string, password: string): Promise<boolean> => {
+const authenticateUser = async (email: string, password: string): Promise<boolean | null> => {
     const connection = await establishConnectionWithDatabase()
     try {
         const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM USERS WHERE email = ?", [email])
         const user = results[0]
-        if (!user) return false
+        if (!user) return null
         return await bcrypt.compare(password, user.password_hash)
     } finally {
         await connection.end()
