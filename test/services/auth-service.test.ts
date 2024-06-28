@@ -1,0 +1,99 @@
+import {
+    UserEntity,
+    authenticateUser,
+    getRegisteredUsers,
+    registerUser,
+    unregisterUser, isUserRegistered
+} from "../../src/services/auth-service"
+
+// need to mock this because import.meta.* is not supported in jest
+jest.mock("../../src/environment-variables", () => {
+    return {
+        server: {
+            listenPort: undefined
+        },
+        dbConfig: {
+            hostName: "localhost",
+            username: "root",
+            password: "",
+            databaseName: "noteworthy_db",
+        }
+    }
+})
+
+describe("Auth Service Test", () => {
+    test("User with valid credentials is registered && unregistered successfully", async () => {
+        const testEmail = "craig-federighi@email.com"
+        const testPassword = "hair-force-one"
+
+        await registerUser(testEmail, testPassword)
+        let registeredUsers = await getRegisteredUsers()
+
+        expect(registeredUsers.some((user) => user.email === testEmail)).toBe(true)
+
+        await unregisterUser(testEmail)
+        registeredUsers = await getRegisteredUsers()
+
+        expect(registeredUsers.every((user) => user.email !== testEmail)).toBe(true)
+    })
+
+    test("Unregistering a non-existent user shouldn't throw an exception", async () => {
+        await unregisterUser("testEmail")
+    })
+
+    test("User authentication test - Registered user is authenticated successfully", async () => {
+        const testEmail = "craig-federighi@email.com"
+        const testPassword = "hair-force-one"
+
+        await registerUser(testEmail, testPassword)
+        const isUserAuthenticated = await authenticateUser(testEmail, testPassword)
+
+        expect(isUserAuthenticated).toBe(true)
+
+        await unregisterUser(testEmail)
+    })
+
+    test("User authentication test - Non-existent user is not authenticated successfully", async () => {
+        const testEmail = "craig-federighi@email.com"
+        const testPassword = "hair-force-one"
+
+        const isUserAuthenticated = await authenticateUser(testEmail, testPassword)
+        expect(isUserAuthenticated).toBe(false)
+
+    })
+
+    test("Registered users are fetched successfully", async () => {
+        const emails = ["test1", "test2", "test3"]
+        for (const email of emails) {
+            await registerUser(email, "");
+        }
+
+        let registeredEmails = (await getRegisteredUsers()).map((user) => user.email)
+        expect(registeredEmails).toEqual(emails)
+
+        for (const email of emails) {
+            await unregisterUser(email);
+        }
+
+        registeredEmails = (await getRegisteredUsers()).map((user) => user.email)
+        expect(registeredEmails).not.toEqual(emails)
+    })
+
+    test("Is user registered test - returns true if user is registered, else false", async () => {
+        const testEmail = "craig-federighi@email.com"
+        const testPassword = "hair-force-one"
+
+        await registerUser(testEmail, testPassword)
+        expect(await isUserRegistered(testEmail)).toBe(true)
+
+        await unregisterUser(testEmail)
+        expect(await isUserRegistered(testEmail)).toBe(false)
+    })
+
+    afterEach(async () => {
+        const registeredUsers = await getRegisteredUsers()
+        for (const user of registeredUsers) {
+            await unregisterUser(user.email)
+        }
+    })
+})
