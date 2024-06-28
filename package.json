@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && node dist/src/app.js prod",
     "dev": "tsc && node dist/src/app.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "jest test/**/*.test.ts"
   },
   "type": "module",
   "keywords": [],
