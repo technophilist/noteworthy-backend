@@ -1,12 +1,10 @@
 import express from "express"
 import helmet from "helmet"
 import environmentVariables from "./environment-variables.js";
+import authRouter from "./routers/auth-router.js";
 
 const app = express()
 
-app.get("/", (req, res) => {
-    res.send("<h1>Let's do this!</h1")
-})
 
 // middlewares
 // CRITICAL!: Without this, the rate limiter will consider proxies like load balancers
@@ -15,6 +13,8 @@ app.get("/", (req, res) => {
 // effectively rate limiting the entire website.
 app.set("trust proxy", 1)
 app.use(helmet())
+app.use(express.json())
+app.use("/api/v1/auth", authRouter)
 
 // listen for requests
 const PORT = environmentVariables.server.listenPort || 3000
