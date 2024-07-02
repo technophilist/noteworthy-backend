@@ -8,6 +8,11 @@ import {areValidCredentials} from "../validations/auth-validations.js";
 const INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error."
 
 /**
+ * Error message to be sent when invalid credentials are received.
+ */
+const INVALID_CREDENTIALS_ERROR_MESSAGE = "Invalid Credentials."
+
+/**
  * Registers a new user.
  *
  * @param {Request} req - The request object from Express, expected to contain user credentials in the body.
@@ -17,7 +22,7 @@ const registerNewUser = async (req: Request, res: Response) => {
     const body = req.body
 
     if (!areValidCredentials(body)) {
-        res.status(400).send({error: "Credentials missing."})
+        res.status(400).send({error: INVALID_CREDENTIALS_ERROR_MESSAGE})
         return
     }
 
@@ -41,7 +46,7 @@ const login = async (req: Request, res: Response) => {
     const body = req.body
 
     if (!areValidCredentials(body)) {
-        res.status(400).send({error: "Credentials missing."})
+        res.status(400).send({error: INVALID_CREDENTIALS_ERROR_MESSAGE})
         return
     }
 
