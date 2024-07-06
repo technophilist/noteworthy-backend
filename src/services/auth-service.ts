@@ -26,14 +26,15 @@ const establishConnectionWithDatabase = async (): Promise<mysql.Connection> => {
  * Register a new user with the provided email and password
  * @param {string} email - The email of the user
  * @param {string} password - The password of the user
- * @returns {Promise<void>} A promise that resolves when the user is registered
+ * @returns {Promise<string>} A promise that resolves to the new user's user id.
  */
-const registerUser = async (email: string, password: string): Promise<void> => {
+const registerUser = async (email: string, password: string): Promise<string> => {
     const connection = await establishConnectionWithDatabase()
     try {
         const userId = randomUUID()
         const passwordHash = await bcrypt.hash(password, 4)
         await connection.query(`INSERT IGNORE INTO users (user_id, email, password_hash) values (?, ?, ?);`, [userId, email, passwordHash])
+        return userId
     } finally {
         await connection.end()
     }
