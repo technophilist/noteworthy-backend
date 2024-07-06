@@ -1,6 +1,7 @@
 import environmentVariables from "../environment-variables.js"
 import bcrypt from "bcrypt"
 import mysql, {RowDataPacket} from "mysql2/promise"
+import {randomUUID} from "node:crypto";
 
 // db config and credentials
 const hostName = environmentVariables.dbConfig.hostName,
@@ -30,8 +31,9 @@ const establishConnectionWithDatabase = async (): Promise<mysql.Connection> => {
 const registerUser = async (email: string, password: string): Promise<void> => {
     const connection = await establishConnectionWithDatabase()
     try {
+        const userId = randomUUID()
         const passwordHash = await bcrypt.hash(password, 4)
-        await connection.query(`INSERT IGNORE INTO users (email, password_hash) values (?, ?);`, [email, passwordHash])
+        await connection.query(`INSERT IGNORE INTO users (user_id, email, password_hash) values (?, ?, ?);`, [userId, email, passwordHash])
     } finally {
         await connection.end()
     }
@@ -93,7 +95,7 @@ const getRegisteredUsers = async (): Promise<Array<UserEntity>> => {
     try {
         const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM users;")
         return results.map((row) => {
-            return {id: row.id, email: row.email}
+            return {id: row.user_id, email: row.email}
         })
     } finally {
         await connection.end()
