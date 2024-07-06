@@ -43,14 +43,14 @@ const registerUser = async (email: string, password: string): Promise<string> =>
 
 /**
  * Unregister a user with the provided email
- * @param {string} email - The email of the user to be unregistered
+ * @param {string} userId - The id of the user to be unregistered
  * @returns {Promise<void>} A promise that resolves when the user is unregistered
  */
 
-const unregisterUser = async (email: string): Promise<void> => {
+const unregisterUser = async (userId: string): Promise<void> => {
     const connection = await establishConnectionWithDatabase()
     try {
-        await connection.query("DELETE FROM users WHERE email = ?", [email])
+        await connection.query("DELETE FROM users WHERE user_id = ?", [userId])
     } finally {
         await connection.end()
     }
@@ -83,7 +83,7 @@ const authenticateUser = async (email: string, password: string): Promise<boolea
  * @property {string} email - The user's email
  */
 type UserEntity = {
-    id: number,
+    id: string,
     email: string
 }
 
