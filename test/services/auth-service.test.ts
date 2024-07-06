@@ -58,7 +58,7 @@ describe("Auth Service Test", () => {
         const testPassword = "hair-force-one"
 
         const isUserAuthenticated = await authenticateUser(testEmail, testPassword)
-        expect(isUserAuthenticated).toBe(false)
+        expect(isUserAuthenticated).toBe(null)
 
     })
 
