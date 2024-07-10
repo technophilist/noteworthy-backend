@@ -23,13 +23,14 @@ jest.mock("../../src/environment-variables", () => {
 })
 describe("Note controller tests", () => {
     const registeredTestUserEmail = "registeredTestUserEmail@email.com", registeredTestUserPassword = "password"
+    let registeredUserId: string
 
     beforeEach(async () => {
-        await registerUser(registeredTestUserEmail, registeredTestUserPassword)
+        registeredUserId = await registerUser(registeredTestUserEmail, registeredTestUserPassword)
     })
 
     afterEach(async () => {
-        await unregisterUser(registeredTestUserEmail)
+        await unregisterUser(registeredUserId)
         await releaseResources()
     })
 
@@ -37,15 +38,15 @@ describe("Note controller tests", () => {
     test("New note creation for an already registered user must be successfully created", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
         const note: NoteEntity = {
-            registeredUserEmail: registeredTestUserEmail,
+            registeredUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
         await createNewNote(note)
-        const notes = (await getAllNotesOfUser(registeredTestUserEmail)).filter((noteWithMetadata) => {
-            return noteWithMetadata.registeredUserEmail === registeredTestUserEmail
+        const notes = (await getAllNotesOfUser(registeredUserId)).filter((noteWithMetadata) => {
+            return noteWithMetadata.registeredUserId === registeredUserId
         })
-        expect(notes[0].registeredUserEmail).toBe(registeredTestUserEmail)
+        expect(notes[0].registeredUserId).toBe(registeredUserId)
         expect(notes[0].title).toBe(testNoteTitle)
         expect(notes[0].content).toBe(testNoteContent)
     })
@@ -54,7 +55,7 @@ describe("Note controller tests", () => {
         const unregisteredTestUserEmail = "abcabc@emailemail.com"
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
         const note: NoteEntity = {
-            registeredUserEmail: unregisteredTestUserEmail,
+            registeredUserId: unregisteredTestUserEmail,
             title: testNoteTitle,
             content: testNoteContent
         }
@@ -64,17 +65,17 @@ describe("Note controller tests", () => {
     test("Get notes test - A request to fetch notes of a specific user must return a valid, existing list of notes.", async () => {
         const insertedNotes: Array<NoteEntity> = [
             {
-                registeredUserEmail: registeredTestUserEmail,
+                registeredUserId: registeredUserId,
                 title: "testNoteTitle#1",
                 content: "testNoteContent#1"
             },
             {
-                registeredUserEmail: registeredTestUserEmail,
+                registeredUserId: registeredUserId,
                 title: "testNoteTitle#2",
                 content: "testNoteContent#2"
             },
             {
-                registeredUserEmail: registeredTestUserEmail,
+                registeredUserId: registeredUserId,
                 title: "testNoteTitle#3",
                 content: "testNoteContent#3"
             }
@@ -83,9 +84,9 @@ describe("Note controller tests", () => {
             await createNewNote(note);
         }
 
-        const fetchedNotes = (await getAllNotesOfUser(registeredTestUserEmail)).map((noteWithMetadata): NoteEntity => {
+        const fetchedNotes = (await getAllNotesOfUser(registeredUserId)).map((noteWithMetadata): NoteEntity => {
             return {
-                registeredUserEmail: noteWithMetadata.registeredUserEmail,
+                registeredUserId: noteWithMetadata.registeredUserId,
                 title: noteWithMetadata.title,
                 content: noteWithMetadata.content
             }
@@ -95,19 +96,19 @@ describe("Note controller tests", () => {
     test("A valid existing note must be deleted successfully", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
         const note: NoteEntity = {
-            registeredUserEmail: registeredTestUserEmail,
+            registeredUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
         await createNewNote(note)
 
-        const fetchedNoteAfterInserting = (await getAllNotesOfUser(registeredTestUserEmail))[0]
+        const fetchedNoteAfterInserting = (await getAllNotesOfUser(registeredUserId))[0]
         expect(fetchedNoteAfterInserting.title).toEqual(testNoteTitle)
         expect(fetchedNoteAfterInserting.content).toEqual(testNoteContent)
 
         await deleteNoteWithId(fetchedNoteAfterInserting.noteId)
 
-        const fetchedNotesListAfterDeleting = await getAllNotesOfUser(registeredTestUserEmail)
+        const fetchedNotesListAfterDeleting = await getAllNotesOfUser(registeredUserId)
         expect(fetchedNotesListAfterDeleting.length).toEqual(0)
     })
 
@@ -118,29 +119,29 @@ describe("Note controller tests", () => {
     test("A valid existing note must be updated successfully", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
         const note: NoteEntity = {
-            registeredUserEmail: registeredTestUserEmail,
+            registeredUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
         await createNewNote(note)
 
-        const fetchedNoteBeforeUpdating = (await getAllNotesOfUser(registeredTestUserEmail))[0]
+        const fetchedNoteBeforeUpdating = (await getAllNotesOfUser(registeredUserId))[0]
         expect(fetchedNoteBeforeUpdating.title).toEqual(testNoteTitle)
         expect(fetchedNoteBeforeUpdating.content).toEqual(testNoteContent)
-        
+
         // title
         const updatedTitle = "updatedTitle"
         await updateNoteWithId(fetchedNoteBeforeUpdating.noteId, {updatedTitle: updatedTitle})
 
-        const fetchedNoteAfterUpdatingTitle = (await getAllNotesOfUser(registeredTestUserEmail))[0]
+        const fetchedNoteAfterUpdatingTitle = (await getAllNotesOfUser(registeredUserId))[0]
         expect(fetchedNoteAfterUpdatingTitle.title).toEqual(updatedTitle)
         expect(fetchedNoteAfterUpdatingTitle.content).toEqual(testNoteContent)
-        
+
         // content
         const updatedContent = "updatedContent"
         await updateNoteWithId(fetchedNoteBeforeUpdating.noteId, {updatedContent: updatedContent})
 
-        const fetchedNoteAfterUpdatingContent = (await getAllNotesOfUser(registeredTestUserEmail))[0]
+        const fetchedNoteAfterUpdatingContent = (await getAllNotesOfUser(registeredUserId))[0]
         expect(fetchedNoteAfterUpdatingContent.title).toEqual(updatedTitle)
         expect(fetchedNoteAfterUpdatingContent.content).toEqual(updatedContent)
     })

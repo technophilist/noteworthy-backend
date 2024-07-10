@@ -5,7 +5,7 @@ import mysql, {RowDataPacket} from "mysql2/promise"
  * Type representing a saved note entity.
  */
 type NoteEntity = {
-    registeredUserEmail: string,
+    registeredUserId: string,
     title: string,
     content: string
 }
@@ -78,11 +78,11 @@ const getActiveConnectionFromPool = () => {
 const createNewNote = async (newNote: NoteEntity) => {
     const connection = await getActiveConnectionFromPool()
     try {
-        const {registeredUserEmail, title, content} = newNote
+        const {registeredUserId, title, content} = newNote
         const currentDateTimeMillis = String(Date.now())
         await connection.query(
-            "INSERT INTO notes (user_email, title, content, created_epoch_timestamp) VALUES (?, ?, ?, ?);",
-            [registeredUserEmail, title, content, currentDateTimeMillis]
+            "INSERT INTO notes (user_id, title, content, created_epoch_timestamp) VALUES (?, ?, ?, ?);",
+            [registeredUserId, title, content, currentDateTimeMillis]
         )
     } finally {
         connection.release()
@@ -92,18 +92,18 @@ const createNewNote = async (newNote: NoteEntity) => {
 /**
  * Retrieves all notes associated with a specific user from the database.
  *
- * @param userEmail The email address of the user whose notes should be retrieved.
+ * @param userId The id of the user whose notes should be retrieved.
  *
  * @returns A promise that resolves to an array of objects containing note and metadata information.
  *          Each object contains properties from both the NoteEntity and NoteMetadataEntity types.
  */
-const getAllNotesOfUser = async (userEmail: string): Promise<Array<NoteEntity & NoteMetadataEntity>> => {
+const getAllNotesOfUser = async (userId: string): Promise<Array<NoteEntity & NoteMetadataEntity>> => {
     const connection = await getActiveConnectionFromPool()
     try {
-        const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM notes WHERE user_email = ?", [userEmail])
+        const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM notes WHERE user_id = ?", [userId])
         return results.map((row) => {
             return {
-                registeredUserEmail: row.user_email,
+                registeredUserId: row.user_id,
                 title: row.title,
                 content: row.content,
                 noteId: row.note_id,
