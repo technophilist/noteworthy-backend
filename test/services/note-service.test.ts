@@ -1,11 +1,13 @@
+import { Note } from "../../src/models/notes/note"
 import {registerUser, unregisterUser} from "../../src/services/auth-service"
 import {
     createNewNote,
     deleteNoteWithId,
     getAllNotesOfUser,
-    NoteEntity, releaseResources,
+    releaseResources,
     updateNoteWithId
 } from "../../src/services/notes-service"
+
 
 // need to mock this because import.meta.* is not supported in jest
 jest.mock("../../src/environment-variables", () => {
@@ -37,16 +39,16 @@ describe("Note controller tests", () => {
 
     test("New note creation for an already registered user must be successfully created", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
-        const note: NoteEntity = {
-            registeredUserId: registeredUserId,
+        const note: Note = {
+            associatedUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
         await createNewNote(note)
         const notes = (await getAllNotesOfUser(registeredUserId)).filter((noteWithMetadata) => {
-            return noteWithMetadata.registeredUserId === registeredUserId
+            return noteWithMetadata.associatedUserId === registeredUserId
         })
-        expect(notes[0].registeredUserId).toBe(registeredUserId)
+        expect(notes[0].associatedUserId).toBe(registeredUserId)
         expect(notes[0].title).toBe(testNoteTitle)
         expect(notes[0].content).toBe(testNoteContent)
     })
@@ -54,8 +56,8 @@ describe("Note controller tests", () => {
     test("New note creation for a nonregistered user must throw an error.", async () => {
         const unregisteredTestUserEmail = "abcabc@emailemail.com"
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
-        const note: NoteEntity = {
-            registeredUserId: unregisteredTestUserEmail,
+        const note: Note = {
+            associatedUserId: unregisteredTestUserEmail,
             title: testNoteTitle,
             content: testNoteContent
         }
@@ -63,19 +65,19 @@ describe("Note controller tests", () => {
     })
 
     test("Get notes test - A request to fetch notes of a specific user must return a valid, existing list of notes.", async () => {
-        const insertedNotes: Array<NoteEntity> = [
+        const insertedNotes: Array<Note> = [
             {
-                registeredUserId: registeredUserId,
+                associatedUserId: registeredUserId,
                 title: "testNoteTitle#1",
                 content: "testNoteContent#1"
             },
             {
-                registeredUserId: registeredUserId,
+                associatedUserId: registeredUserId,
                 title: "testNoteTitle#2",
                 content: "testNoteContent#2"
             },
             {
-                registeredUserId: registeredUserId,
+                associatedUserId: registeredUserId,
                 title: "testNoteTitle#3",
                 content: "testNoteContent#3"
             }
@@ -84,9 +86,9 @@ describe("Note controller tests", () => {
             await createNewNote(note);
         }
 
-        const fetchedNotes = (await getAllNotesOfUser(registeredUserId)).map((noteWithMetadata): NoteEntity => {
+        const fetchedNotes = (await getAllNotesOfUser(registeredUserId)).map((noteWithMetadata): Note => {
             return {
-                registeredUserId: noteWithMetadata.registeredUserId,
+                associatedUserId: noteWithMetadata.associatedUserId,
                 title: noteWithMetadata.title,
                 content: noteWithMetadata.content
             }
@@ -95,8 +97,8 @@ describe("Note controller tests", () => {
     })
     test("A valid existing note must be deleted successfully", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
-        const note: NoteEntity = {
-            registeredUserId: registeredUserId,
+        const note: Note = {
+            associatedUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
@@ -118,8 +120,8 @@ describe("Note controller tests", () => {
 
     test("A valid existing note must be updated successfully", async () => {
         const testNoteTitle = "testNoteTitle", testNoteContent = "testNoteContent"
-        const note: NoteEntity = {
-            registeredUserId: registeredUserId,
+        const note: Note = {
+            associatedUserId: registeredUserId,
             title: testNoteTitle,
             content: testNoteContent
         }
