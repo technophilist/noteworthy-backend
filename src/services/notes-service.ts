@@ -1,22 +1,6 @@
-import environmentVariables from "../environment-variables.js" 
+import environmentVariables from "../environment-variables.js"
 import mysql, {RowDataPacket} from "mysql2/promise"
-
-/**
- * Type representing a saved note entity.
- */
-type NoteEntity = {
-    registeredUserId: string,
-    title: string,
-    content: string
-}
-
-/**
- * Type containing metadata associated with a note entity.
- */
-type NoteMetadataEntity = {
-    noteId: number,
-    createdEpochTimestamp: string
-}
+import {Note, NoteMetadata} from "../models/notes/note.js"
 
 /**
  * Creates a new connection pool to the MySQL database using environment variables for configuration.
@@ -71,18 +55,18 @@ const getActiveConnectionFromPool = () => {
 /**
  * Creates a new note in the database.
  *
- * @param newNote An object containing the details of the new note to be created.
+ * @param note The note to be created.
  *
  * @returns A promise that resolves when the note is created.
  */
-const createNewNote = async (newNote: NoteEntity) => {
+const createNewNote = async (note: Note) => {
     const connection = await getActiveConnectionFromPool()
     try {
-        const {registeredUserId, title, content} = newNote
+        const {associatedUserId, title, content} = note
         const currentDateTimeMillis = String(Date.now())
         await connection.query(
             "INSERT INTO notes (user_id, title, content, created_epoch_timestamp) VALUES (?, ?, ?, ?);",
-            [registeredUserId, title, content, currentDateTimeMillis]
+            [associatedUserId, title, content, currentDateTimeMillis]
         )
     } finally {
         connection.release()
@@ -97,13 +81,13 @@ const createNewNote = async (newNote: NoteEntity) => {
  * @returns A promise that resolves to an array of objects containing note and metadata information.
  *          Each object contains properties from both the NoteEntity and NoteMetadataEntity types.
  */
-const getAllNotesOfUser = async (userId: string): Promise<Array<NoteEntity & NoteMetadataEntity>> => {
+const getAllNotesOfUser = async (userId: string): Promise<Array<Note & NoteMetadata>> => {
     const connection = await getActiveConnectionFromPool()
     try {
         const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM notes WHERE user_id = ?", [userId])
         return results.map((row) => {
             return {
-                registeredUserId: row.user_id,
+                associatedUserId: row.user_id,
                 title: row.title,
                 content: row.content,
                 noteId: row.note_id,
@@ -153,7 +137,6 @@ const deleteNoteWithId = async (noteId: number) => {
 }
 
 export {
-    NoteEntity,
     createNewNote,
     getAllNotesOfUser,
     updateNoteWithId,
