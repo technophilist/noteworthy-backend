@@ -57,17 +57,19 @@ const getActiveConnectionFromPool = () => {
  *
  * @param note The note to be created.
  *
- * @returns A promise that resolves when the note is created.
+ * @returns A promise that resolves to the id of the note if it is created successfully.
  */
-const createNewNote = async (note: Note) => {
+const createNewNote = async (note: Note): Promise<number| null> => {
     const connection = await getActiveConnectionFromPool()
     try {
         const {associatedUserId, title, content} = note
         const currentDateTimeMillis = String(Date.now())
-        await connection.query(
+        const [result] = await connection.query(
             "INSERT INTO notes (user_id, title, content, created_epoch_timestamp) VALUES (?, ?, ?, ?);",
             [associatedUserId, title, content, currentDateTimeMillis]
         )
+        // @ts-ignore
+        return result.insertId
     } finally {
         connection.release()
     }
