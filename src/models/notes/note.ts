@@ -6,11 +6,11 @@
  * @property {string} title - The title of the note.
  * @property {string} content - The content of the note.
  */
-type Note = {
+type Note = Readonly<{
     associatedUserId: string,
     title: string,
     content: string
-}
+}>
 
 /**
  * Metadata for a note.
@@ -18,9 +18,9 @@ type Note = {
  * @property {number} noteId - The unique identifier of the note.
  * @property {string} createdEpochTimestamp - The timestamp when the note was created, in epoch format.
  */
-type NoteMetadata = {
+type NoteMetadata = Readonly<{
     noteId: number,
     createdEpochTimestamp: string
-}
+}>
 
 export {Note, NoteMetadata}
