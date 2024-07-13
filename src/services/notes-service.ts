@@ -59,7 +59,7 @@ const getActiveConnectionFromPool = () => {
  *
  * @returns A promise that resolves to the id of the note if it is created successfully.
  */
-const createNewNote = async (note: Note): Promise<number| null> => {
+const createNewNote = async (note: Note): Promise<number | null> => {
     const connection = await getActiveConnectionFromPool()
     try {
         const {associatedUserId, title, content} = note
@@ -127,12 +127,15 @@ const updateNoteWithId = async (noteId: number, updatedNote: { updatedTitle?: st
  *
  * @param noteId The ID of the note to be deleted.
  *
- * @returns A promise that resolves when the note is deleted.
+ * @returns A promise that resolves to true when the note is deleted or false when a note
+ * with the specified noteId was not found.
  */
-const deleteNoteWithId = async (noteId: number) => {
+const deleteNoteWithId = async (noteId: number): Promise<Boolean> => {
     const connection = await getActiveConnectionFromPool()
     try {
-        await connection.query("DELETE FROM notes where note_id = ?", [noteId])
+        const [resultSetHeader] = await connection.query("DELETE FROM notes where note_id = ?", [noteId])
+        // @ts-ignore
+        return resultSetHeader.fieldCount !== 0
     } finally {
         connection.release()
     }
