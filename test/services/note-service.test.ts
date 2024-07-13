@@ -114,8 +114,8 @@ describe("Note controller tests", () => {
         expect(fetchedNotesListAfterDeleting.length).toEqual(0)
     })
 
-    test("An attempt to delete existing note must not throw an exception", async () => {
-        expect(async () => await deleteNoteWithId(123123123)).not.toThrow()
+    test("An attempt to delete non-existing must return false", async () => {
+        expect(await deleteNoteWithId(123123123)).toBe(false)
     })
 
     test("A valid existing note must be updated successfully", async () => {
