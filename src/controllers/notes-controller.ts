@@ -1,5 +1,5 @@
 import {Request, Response} from "express"
-import {createNewNote, deleteNoteWithId, getAllNotesOfUser} from "../services/notes-service.js"
+import {createNewNote, deleteNoteWithId, getAllNotesOfUser, updateNoteWithId} from "../services/notes-service.js"
 import {Note} from "../models/notes/note.js";
 import {isValidNote} from "../validations/note-validations.js";
 
@@ -70,6 +70,31 @@ const getAllNotesOfUserWithId = async (req: Request, res: Response) => {
 }
 
 /**
+ * Updates a note associated with the provided user ID.
+ *
+ * @param req - The incoming HTTP request object with the body set to a json object containing the
+ * noteId, title and content.
+ * @param res - The outgoing HTTP response object.
+ */
+const updateNoteOfUserWithId = async (req: Request, res: Response) => {
+    const noteId = Number(req.body?.noteId)
+    const title = req.body?.title
+    const content = req.body?.content
+
+    if (!noteId || !title || !content || Number.isNaN(noteId)) {
+        res.status(400).json({error: "Missing or invalid request body."})
+        return
+    }
+
+    try {
+        const didNoteExist = await updateNoteWithId(noteId, {updatedTitle: title, updatedContent: content})
+        if (!didNoteExist) res.status(404).json({error: `Note with ${noteId} does not exist.`})
+        else res.status(200).json({})
+    } catch (error) {
+        res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
+    }
+}
+/**
  * Deletes a note associated with a specific user ID.
  *
  * Expects a request object (`req`) with a query parameter named `noteId` containing the ID of the note to delete.
@@ -95,4 +120,9 @@ const deleteNoteOfUserWithId = async (req: Request, res: Response) => {
         res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
-export {createNewNoteForUser, getAllNotesOfUserWithId, deleteNoteOfUserWithId}
+export {
+    createNewNoteForUser,
+    getAllNotesOfUserWithId,
+    updateNoteOfUserWithId,
+    deleteNoteOfUserWithId
+}
