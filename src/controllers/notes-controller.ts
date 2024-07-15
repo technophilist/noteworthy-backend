@@ -1,11 +1,13 @@
 import {Request, Response} from "express"
-import {createNewNote, getAllNotesOfUser} from "../services/notes-service.js"
+import {createNewNote, deleteNoteWithId, getAllNotesOfUser} from "../services/notes-service.js"
 import {Note} from "../models/notes/note.js";
 import {isValidNote} from "../validations/note-validations.js";
 
+
+const INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error."
 /**
  * Creates a new note for a user.
- * 
+ *
  * @param req The Express request object containing the user's note data in the body.
  * The request object must contain an object with the fields title, content and userId.
  * @param res The Express response object used to send responses back to the client.
@@ -32,13 +34,13 @@ const createNewNoteForUser = async (req: Request, res: Response) => {
         const noteId = await createNewNote(newNote)
         res.status(200).json({noteId: noteId})
     } catch (error) {
-        return res.status(500).json({error: "Internal server error."})
+        return res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
 
 /**
  * Retrieves all notes associated with a specific user ID.
- * 
+ *
  * @param req The Express request object containing the user ID in the query parameters.
  * @param res The Express response object used to send responses back to the client.
  */
@@ -63,9 +65,34 @@ const getAllNotesOfUserWithId = async (req: Request, res: Response) => {
         }
         res.status(200).json(notesArray)
     } catch (error) {
-        return res.status(500).json({error: "Internal server error"})
+        res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
-
 }
 
-export {createNewNoteForUser, getAllNotesOfUserWithId}
+/**
+ * Deletes a note associated with a specific user ID.
+ *
+ * Expects a request object (`req`) with a query parameter named `noteId` containing the ID of the note to delete.
+ *
+ * @param req - The HTTP request object with a query paramater named `noteId` containing the ID of the note.
+ * @param res - The outgoing HTTP response object.
+ */
+const deleteNoteOfUserWithId = async (req: Request, res: Response) => {
+    const noteId = req.query?.noteId
+
+    if (!noteId) {
+        res.status(400).json({error: "Missing or invalid noteId parameter"})
+        return
+    }
+
+    try {
+        const didNoteExist = await deleteNoteWithId(Number(noteId))
+
+        if (!didNoteExist) res.status(404).json({error: `Note with ${noteId} does not exist.`})
+        else res.status(200).json({success: "Successfully deleted the note."})
+
+    } catch (error) {
+        res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
+    }
+}
+export {createNewNoteForUser, getAllNotesOfUserWithId, deleteNoteOfUserWithId}
