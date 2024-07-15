@@ -4,7 +4,8 @@ import {randomUUID} from "node:crypto";
 import {
     createNewNoteForUser,
     deleteNoteOfUserWithId,
-    getAllNotesOfUserWithId
+    getAllNotesOfUserWithId,
+    updateNoteOfUserWithId
 } from "../../src/controllers/notes-controller";
 
 
@@ -52,8 +53,22 @@ jest.mock("../../src/services/notes-service", () => {
             return noteId
         },
         getAllNotesOfUser: async (userId: string) => map.get(userId) ?? [],
-        updateNoteWithId: async () => {
-            throw Error("Not implemented")
+        updateNoteWithId: async (noteId: number, updatedNote: { updatedTitle?: string, updatedContent?: string }) => {
+            if (!updatedNote.updatedTitle && !updatedNote.updatedContent) return false
+            for (const noteArray of map.values()) {
+                const note = noteArray.find((note) => note.noteId === noteId)
+                if (!note) continue
+                noteArray.splice(noteArray.indexOf(note), 1)
+                noteArray.push({
+                    associatedUserId: note.associatedUserId,
+                    title: updatedNote.updatedTitle ?? note.title,
+                    content: updatedNote.updatedContent ?? note.content,
+                    noteId: note.noteId,
+                    createdEpochTimestamp: note.createdEpochTimestamp
+                })
+                return true
+            }
+            return false
         },
         deleteNoteWithId: async (noteId: number) => {
             for (const noteArray of map.values()) {
@@ -215,5 +230,62 @@ describe("notes-controller test", () => {
 
         await deleteNoteOfUserWithId(request as Request, response as Response)
         expect(statusSpy).toHaveBeenCalledWith(404)
+    })
+
+    test("Request to update a non-existing note must return a response with status code set to 404", async () => {
+        const request: Partial<Request> = {
+            body: {
+                noteId: 123,
+                title: "title",
+                content: "content"
+            }
+        }
+        const response: Partial<Response> = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+
+        const statusSpy = jest.spyOn(response, "status")
+
+        await updateNoteOfUserWithId(request as Request, response as Response)
+        expect(statusSpy).toHaveBeenCalledWith(404)
+    })
+
+    test("Request to update an existing note must return a response with status code set to 200", async () => {
+
+        let testNoteId = ""
+        const createNoteRequest: Partial<Request> = {
+            body: {
+                userId: "userId",
+                title: "title",
+                content: "content"
+            }
+        }
+        const createNoteResponse: Partial<Response> = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn().mockImplementation((obj) => testNoteId = String(obj.noteId))
+        }
+
+        const createNoteStatusSpy = jest.spyOn(createNoteResponse, "status")
+
+        await createNewNoteForUser(createNoteRequest as Request, createNoteResponse as Response)
+        expect(createNoteStatusSpy).toHaveBeenCalledWith(200)
+
+        const request: Partial<Request> = {
+            body: {
+                noteId: testNoteId,
+                title: "title",
+                content: "content"
+            }
+        }
+        const response: Partial<Response> = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+
+        const statusSpy = jest.spyOn(response, "status")
+
+        await updateNoteOfUserWithId(request as Request, response as Response)
+        expect(statusSpy).toHaveBeenCalledWith(200)
     })
 })
