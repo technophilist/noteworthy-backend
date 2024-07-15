@@ -108,15 +108,23 @@ const getAllNotesOfUser = async (userId: string): Promise<Array<Note & NoteMetad
  * @param noteId The ID of the note to be updated.
  * @param updatedNote An object containing the updated information of the note.
  *
- * @returns A promise that resolves when the note is updated.
+ * @returns Promise<boolean> A promise that resolves to true if the note with the specified note ID was updated successfully,
+ * or false if no such note was found or if both of the properties of the updatedNote were unspecified.
  */
 const updateNoteWithId = async (noteId: number, updatedNote: { updatedTitle?: string, updatedContent?: string }) => {
-    if (!updatedNote.updatedTitle && !updatedNote.updatedContent) return
+    if (!updatedNote.updatedTitle && !updatedNote.updatedContent) return false
 
     const connection = await getActiveConnectionFromPool()
     try {
-        if (updatedNote.updatedTitle) await connection.query("UPDATE notes SET title = ? where note_id = ?", [updatedNote.updatedTitle, noteId])
-        else if (updatedNote.updatedContent) await connection.query("UPDATE notes SET content = ? where note_id = ?", [updatedNote.updatedContent, noteId])
+        if (updatedNote.updatedTitle) {
+            const [resultSetHeader] = await connection.query("UPDATE notes SET title = ? where note_id = ?", [updatedNote.updatedTitle, noteId])
+            // @ts-ignore
+            return resultSetHeader.fieldCount !== 0
+        } else if (updatedNote.updatedContent) {
+            const [resultSetHeader] = await connection.query("UPDATE notes SET content = ? where note_id = ?", [updatedNote.updatedContent, noteId])
+            // @ts-ignore
+            return resultSetHeader.fieldCount !== 0
+        }
     } finally {
         connection.release()
     }
