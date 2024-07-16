@@ -120,12 +120,12 @@ const updateNoteWithId = async (noteId: number, updatedNote: { updatedTitle?: st
         if (updatedNote.updatedTitle) {
             const [resultSetHeader] = await connection.query("UPDATE notes SET title = ? where note_id = ?", [updatedNote.updatedTitle, noteId])
             // @ts-ignore
-            didNoteExist = didNoteExist || resultSetHeader.fieldCount !== 0
+            didNoteExist = didNoteExist || resultSetHeader.affectedRows !== 0
         }
         if (updatedNote.updatedContent) {
             const [resultSetHeader] = await connection.query("UPDATE notes SET content = ? where note_id = ?", [updatedNote.updatedContent, noteId])
             // @ts-ignore
-            didNoteExist = didNoteExist || resultSetHeader.fieldCount !== 0
+            didNoteExist = didNoteExist || resultSetHeader.affectedRows !== 0
         }
         return didNoteExist
     } finally {
@@ -146,7 +146,7 @@ const deleteNoteWithId = async (noteId: number): Promise<Boolean> => {
     try {
         const [resultSetHeader] = await connection.query("DELETE FROM notes where note_id = ?", [noteId])
         // @ts-ignore
-        return resultSetHeader.fieldCount !== 0
+        return resultSetHeader.affectedRows !== 0
     } finally {
         connection.release()
     }
