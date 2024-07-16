@@ -116,15 +116,18 @@ const updateNoteWithId = async (noteId: number, updatedNote: { updatedTitle?: st
 
     const connection = await getActiveConnectionFromPool()
     try {
+        let didNoteExist = false
         if (updatedNote.updatedTitle) {
             const [resultSetHeader] = await connection.query("UPDATE notes SET title = ? where note_id = ?", [updatedNote.updatedTitle, noteId])
             // @ts-ignore
-            return resultSetHeader.fieldCount !== 0
-        } else if (updatedNote.updatedContent) {
+            didNoteExist = didNoteExist || resultSetHeader.fieldCount !== 0
+        }
+        if (updatedNote.updatedContent) {
             const [resultSetHeader] = await connection.query("UPDATE notes SET content = ? where note_id = ?", [updatedNote.updatedContent, noteId])
             // @ts-ignore
-            return resultSetHeader.fieldCount !== 0
+            didNoteExist = didNoteExist || resultSetHeader.fieldCount !== 0
         }
+        return didNoteExist
     } finally {
         connection.release()
     }
