@@ -78,18 +78,22 @@ const getAllNotesOfUserWithId = async (req: Request, res: Response) => {
  */
 const updateNoteOfUserWithId = async (req: Request, res: Response) => {
     const noteId = Number(req.body?.noteId)
-    const title = req.body?.title
-    const content = req.body?.content
+    const newTitle = req.body?.title
+    const newContent = req.body?.content
 
-    if (!noteId || !title || !content || Number.isNaN(noteId)) {
+    if (!noteId || !newTitle || !newContent || Number.isNaN(noteId)) {
         res.status(400).json({error: "Missing or invalid request body."})
         return
     }
 
     try {
-        const didNoteExist = await updateNoteWithId(noteId, {updatedTitle: title, updatedContent: content})
+        const didNoteExist = await updateNoteWithId(noteId, {updatedTitle: newTitle, updatedContent: newContent})
         if (!didNoteExist) res.status(404).json({error: `Note with ${noteId} does not exist.`})
-        else res.status(200).json({})
+        else res.status(200).json({
+            noteId: noteId,
+            title: newTitle,
+            content: newContent
+        })
     } catch (error) {
         res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
