@@ -29,8 +29,8 @@ const registerNewUser = async (req: Request, res: Response) => {
     const email = body.email, password = body.password
 
     try {
-        await registerUser(email, password)
-        res.status(200).send({success: "Successfully registered user."})
+        const userId = await registerUser(email, password)
+        res.status(200).send({userId: userId})
     } catch (error) {
         res.status(500).send({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
