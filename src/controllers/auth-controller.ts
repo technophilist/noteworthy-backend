@@ -52,16 +52,17 @@ const login = async (req: Request, res: Response) => {
 
     const email = body.email, password = body.password
     try {
-        const isUserSuccessfullyAuthenticated = await authenticateUser(email, password)
-        if (isUserSuccessfullyAuthenticated === null) {
-            res.status(401).send({error: "User with the specified email doesn't exist."})
-            return
+        const authenticationResult = await authenticateUser(email, password)
+        switch (authenticationResult) {
+            case "wrong-password":
+                res.status(401).send({error: "Invalid credentials - email or password incorrect."})
+                break
+            case "non-existent-user":
+                res.status(401).send({error: "User with the specified email doesn't exist."})
+                break
+            default:
+                res.status(200).send({userId: authenticationResult})
         }
-        if (isUserSuccessfullyAuthenticated) {
-            res.status(200).send({success: "User authenticated successfully."})
-            return
-        }
-        res.status(401).send({error: "Invalid credentials - email or password incorrect."})
     } catch (error) {
         res.status(500).send({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
