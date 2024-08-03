@@ -58,7 +58,7 @@ const login = async (req: Request, res: Response) => {
                 res.status(401).send({error: "Invalid credentials - email or password incorrect."})
                 break
             case "non-existent-user":
-                res.status(401).send({error: "User with the specified email doesn't exist."})
+                res.status(404).send({error: "User with the specified email doesn't exist."})
                 break
             default:
                 res.status(200).send({userId: authenticationResult})
