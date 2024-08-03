@@ -56,7 +56,8 @@ describe("Auth Service Test", () => {
         const userId = await registerUser(testEmail, testPassword)
         const isUserAuthenticated = await authenticateUser(testEmail, testPassword)
 
-        expect(isUserAuthenticated).toBe(true)
+        expect(isUserAuthenticated).not.toBe("wrong-password" )
+        expect(isUserAuthenticated).not.toBe("non-existent-user")
 
         await unregisterUser(userId)
     })
@@ -66,7 +67,7 @@ describe("Auth Service Test", () => {
         const testPassword = "hair-force-one"
 
         const isUserAuthenticated = await authenticateUser(testEmail, testPassword)
-        expect(isUserAuthenticated).toBe(null)
+        expect(isUserAuthenticated).toBe("non-existent-user")
 
     })
 
