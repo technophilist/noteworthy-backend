@@ -14,7 +14,7 @@ const hostName = environmentVariables.dbConfig.hostName,
  * @returns {Promise<mysql.Connection>} A promise that resolves to the database connection
  */
 const establishConnectionWithDatabase = async (): Promise<mysql.Connection> => {
-    return await mysql.createConnection({
+    return mysql.createConnection({
         host: hostName,
         database: databaseName,
         user: databaseUsername,
