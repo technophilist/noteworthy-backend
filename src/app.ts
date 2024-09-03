@@ -3,6 +3,7 @@ import helmet from "helmet"
 import environmentVariables from "./environment-variables.js";
 import authRouter from "./routers/auth-router.js";
 import notesRouter from "./routers/notes-router.js";
+import cors from "cors"
 
 const app = express()
 
@@ -13,6 +14,9 @@ const app = express()
 // are routed through the proxies, the app will incorrectly rate limit the proxy,
 // effectively rate limiting the entire website.
 app.set("trust proxy", 1)
+app.use(cors({
+    origin: true, // TODO: STOPSHIP: DISALLOW REQUESTS FROM ALL ORIGINS. THIS IS SET TO TRUE JUST FOR DEV PURPOSES!.
+}))
 app.use(helmet())
 app.use(express.json())
 app.use("/api/v1/auth", authRouter)
