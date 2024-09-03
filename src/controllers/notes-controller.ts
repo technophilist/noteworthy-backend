@@ -34,7 +34,8 @@ const createNewNoteForUser = async (req: Request, res: Response) => {
         const noteId = await createNewNote(newNote)
         res.status(200).json({noteId: noteId})
     } catch (error) {
-        return res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
+        console.error(`An error occurred while creating a new note: ${error}`)
+        res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
 
@@ -65,6 +66,7 @@ const getAllNotesOfUserWithId = async (req: Request, res: Response) => {
         }
         res.status(200).json(notesArray)
     } catch (error) {
+        console.error(`An error occurred while retrieving notes for user with id ${userId}: ${error}`)
         res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
@@ -95,6 +97,7 @@ const updateNoteOfUserWithId = async (req: Request, res: Response) => {
             content: newContent
         })
     } catch (error) {
+        console.error(`An error occurred while updating note with id ${noteId}: ${error}`)
         res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
@@ -121,6 +124,7 @@ const deleteNoteOfUserWithId = async (req: Request, res: Response) => {
         else res.status(200).json({success: "Successfully deleted the note."})
 
     } catch (error) {
+        console.error(`An error occurred while deleting note with ID ${noteId}: ${error}`)
         res.status(500).json({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }

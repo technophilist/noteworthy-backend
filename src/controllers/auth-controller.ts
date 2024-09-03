@@ -32,6 +32,7 @@ const registerNewUser = async (req: Request, res: Response) => {
         const userId = await registerUser(email, password)
         res.status(200).send({userId: userId})
     } catch (error) {
+        console.error(`An error occurred while registering a new user: ${error}`)
         res.status(500).send({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
@@ -64,6 +65,7 @@ const login = async (req: Request, res: Response) => {
                 res.status(200).send({userId: authenticationResult})
         }
     } catch (error) {
+        console.error(`An error occurred while authenticating a user: ${error}`)
         res.status(500).send({error: INTERNAL_SERVER_ERROR_MESSAGE})
     }
 }
