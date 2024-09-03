@@ -67,7 +67,7 @@ type AuthenticationResult = string | "wrong-password" | "non-existent-user"
 const authenticateUser = async (email: string, password: string): Promise<AuthenticationResult> => {
     const connection = await establishConnectionWithDatabase()
     try {
-        const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM USERS WHERE email = ?", [email])
+        const [results] = await connection.query<RowDataPacket[]>("SELECT * FROM users WHERE email = ?", [email])
         const user = results[0]
         if (!user) return "non-existent-user"
         const isValidPassword = await bcrypt.compare(password, user.password_hash)
