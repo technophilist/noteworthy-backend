@@ -14,9 +14,11 @@ const app = express()
 // are routed through the proxies, the app will incorrectly rate limit the proxy,
 // effectively rate limiting the entire website.
 app.set("trust proxy", 1)
-app.use(cors({
-    origin: true, // TODO: STOPSHIP: DISALLOW REQUESTS FROM ALL ORIGINS. THIS IS SET TO TRUE JUST FOR DEV PURPOSES!.
-}))
+if (environmentVariables.isDevBuild) {
+    app.use(cors({
+        origin: true, // TODO: Possibly dangerous to allow traffic from all origins.
+    }))
+}
 app.use(helmet())
 app.use(express.json())
 app.use("/api/v1/auth", authRouter)
