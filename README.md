@@ -3,10 +3,13 @@
 The Node.js backend for the Noteworthy app.
 
 ## Table of Contents
-1. [Noteworthy-backend](#noteworthy-backend)
+1. [Architecture Diagram](#architecture-diagram)
 2. [Tech Stack / Libraries](#tech-stack--libraries)
 3. [Endpoints (/api/v1/)](#endpoints-apiv1)
 4. [Building and Running the App](#building-and-running-the-app)
+
+## Architecture Diagram
+![Container Architecture Diagram](images/container-arch-diagram.png)
 
 ## Tech Stack / Libraries
 - [Node.js](https://nodejs.org/en)
