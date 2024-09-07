@@ -1,0 +1,15 @@
+name: "noteworthy-backend"
+services:
+  database:
+    build: "./backend-db-docker"
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+  server:
+    build: "./"
+    ports:
+      - 3001:3001
+    depends_on:
+      - database
+
