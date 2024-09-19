@@ -22,6 +22,7 @@ The Node.js backend for the Noteworthy app.
 - [Cors](https://www.npmjs.com/package/cors?activeTab=readme)
 - [Mysql2](https://www.npmjs.com/package/mysql2)
 - [Docker](https://www.docker.com)
+- [Docker Compose](https://docs.docker.com/compose/)
 
 ## Endpoints (/api/v1/)
 ### 🟢 Auth
