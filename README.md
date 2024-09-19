@@ -82,7 +82,9 @@ The Node.js backend for the Noteworthy app.
 
 ## Building and Running the App
 
-### Running the database container:  
+### ⚙️ Manually running the containers
+
+#### Running the database container:  
 - Ensure Docker is installed and running.
 - Build a Docker image of the MySQL container based on the `DockerFile` in `backend-db-docker/`.
 - While running the image ensure that port `3306` is forwarded using the flag `-p 3306:3306`
@@ -90,9 +92,14 @@ The Node.js backend for the Noteworthy app.
   following flag `-e MYSQL_ALLOW_EMPTY_PASSWORD=true` while running a container based on the image.
   the container
 
-### Running the Node.js / backend container
+#### Running the Node.js / backend container
 - Ensure that the database container is already running.
 - Build and run a Docker container based on the `DockerFile` at the root of the project ensuring that
   the port `3001` is forwarded using the flag `-p 3301:3301`.
 - The server will be running on http://localhost:3001.
+
+### 🦸‍♂️ Running the containers using docker-compose
+- Go to the root directory of the project where the `docker-compose.yaml` file is located.
+- Run the following command `docker-compose up` from the terminal.
+- The server will be running on http://localhost:3001 and the database will be running on http://localhost:3306.
   
